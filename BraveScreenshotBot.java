@@ -74,7 +74,8 @@ public class BraveScreenshotBot {
 
     private static void setupDriver() {
         ChromeOptions opt = new ChromeOptions();
-        opt.setBinary(CHROME_BINARY);
+        String chromeBinaryPath = System.getenv().getOrDefault("CHROME_BIN", "/usr/bin/google-chrome");
+        opt.setBinary(chromeBinaryPath);
         opt.addArguments("--user-data-dir=" + PROFILE_DIR);
         opt.addArguments("--profile-directory=Bot");
         opt.addArguments("--start-maximized");
@@ -345,4 +346,5 @@ public class BraveScreenshotBot {
     private static String url(String s){try{return java.net.URLEncoder.encode(s,"UTF-8");}catch(Exception e){return s;}}
     private static String safe(String s){return s==null?"":s;}
 }
+
 
