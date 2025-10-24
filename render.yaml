@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: brave-screenshot-bot
+    env: docker
+    plan: free
+    autoDeploy: true
