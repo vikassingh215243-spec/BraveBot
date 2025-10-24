@@ -20,7 +20,7 @@ public class BraveScreenshotBot {
     private static final String USERNAME  = "VikasSingh96";
     private static final String PASSWORD  = "Abcd@1234";
 
-    private static final String CHROME_BINARY = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+    private static final String CHROME_BINARY = System.getenv().getOrDefault("CHROME_BIN", "/usr/bin/google-chrome");
     private static final String PROFILE_DIR   = "C:\\ChromeBotProfile";
     private static final String PB77_CASINO   = "https://www.pb77.co/casino";
     private static final String EVO_ALL_GAMES = "https://babylonorbit2.evo-games.com/frontend/evo/r2/#category=all_games&my_list=true";
@@ -345,3 +345,4 @@ public class BraveScreenshotBot {
     private static String url(String s){try{return java.net.URLEncoder.encode(s,"UTF-8");}catch(Exception e){return s;}}
     private static String safe(String s){return s==null?"":s;}
 }
+
