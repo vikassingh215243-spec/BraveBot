@@ -1,11 +1,18 @@
-# Use OpenJDK 17 as the base image
+# Base image with Java
 FROM openjdk:17-jdk-slim
 
-# Create working directory
+# Set working directory
 WORKDIR /app
 
-# Copy all files from the current folder into the container
+# Copy all files
 COPY . /app
 
-# Run the JAR file
-CMD ["java", "-jar", "BraveScreenshotBot.jar"]
+# Include all Selenium jars in classpath automatically
+RUN mkdir -p /app/lib
+COPY selenium-java-4.37.0/ /app/lib
+
+# Set the CLASSPATH including all jars in lib
+ENV CLASSPATH="/app:/app/lib/*"
+
+# Run the jar file
+CMD ["java", "-cp", "/app:/app/lib/*", "BraveScreenshotBot"]
