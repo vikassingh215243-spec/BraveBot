@@ -1,26 +1,26 @@
 # Stage 1: Use a reliable Java 17 base image
 FROM openjdk:17-slim
 
-# 1. Install dependencies & Chrome repository (FIXED for exit code 100 using modern GPG method)
-RUN apt-get update && apt-get install -y wget curl unzip gnupg lsb-release \
-    # Google Chrome Key को Securely Add करें
-    && wget -q -O- https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /usr/share/keyrings/google-chrome.gpg \
-    # Chrome Repository Source को Add करें, signed-by का उपयोग करके
-    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-      > /etc/apt/sources.list.d/google-chrome.list \
-    # अब Chrome और बाकी डिपेंडेंसी इंस्टॉल करें
-    && apt-get update && apt-get install -y google-chrome-stable fonts-liberation libappindicator3-1 xdg-utils \
-    # Temporary files हटाएं
+# 1. Install dependencies & Chrome repository (FIXED for exit code 100 using the most stable key method)
+RUN apt-get update && apt-get install -y wget curl unzip gnupg lsb-release fonts-liberation libappindicator3-1 xdg-utils \
+    # Google Chrome Key और Repo को जोड़ें (सबसे विश्वसनीय तरीका)
+    && curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list > /dev/null \
+    \
+    # Chrome और उसकी dependencies इंस्टॉल करें
+    && apt-get update && apt-get install -y google-chrome-stable \
+    \
+    # Cleanup
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install ChromeDriver (Using version 141)
+# 2. Install ChromeDriver (Using version 141, which is compatible with Chrome 127/128)
 RUN wget -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/141.0.7390.0/linux64/chromedriver-linux64.zip \
     && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
     && mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver \
     && chmod +x /usr/local/bin/chromedriver \
     && rm -rf /tmp/chromedriver.zip
 
-# 3. Install ALL required Selenium dependencies (FIX for all NoClassDefFoundErrors, including selenium-http)
+# 3. Install ALL required Selenium dependencies (FIX for all NoClassDefFoundErrors)
 RUN mkdir -p /app/lib && \
     wget -q -P /app/lib https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-java/4.37.0/selenium-java-4.37.0.jar && \
     wget -q -P /app/lib https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.37.0/selenium-api-4.37.0.jar && \
@@ -37,7 +37,7 @@ ENV PATH="/usr/local/bin:$PATH"
 
 # 5. Copy application and set working directory
 WORKDIR /app
-# COPY . /app will copy your JAR file and any other files present in the repo.
+# COPY . /app will copy your JAR file (BraveScreenshotBot.jar) and any other files present in the repo.
 COPY . /app
 
 # 6. Command to run the application (Uses the full lib directory in classpath)
